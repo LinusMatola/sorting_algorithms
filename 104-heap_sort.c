@@ -1,69 +1,70 @@
 #include "sort.h"
-
 /**
- * swap - change position between two position of an array and print the array
- * @array: array to sort
- * @first: lowest position
- * @last: highest position
- * @size: size of array
- */
-void swap(int *array,  int first, int last, size_t size)
+ * check_tree - swiftdown check
+ * @array: pointer to array
+ * @size: size of the pointer
+ * @size_init: original size of the array
+ * @i: index as a root of the tree
+ *
+**/
+void check_tree(int *array, size_t size_init, size_t size, size_t i)
 {
-	int aux, value;
 
-	value = array[first];
-	aux = array[last];
-	array[last] = value;
-	array[first] = aux;
-	print_array(array, size);
-}
+	int n, branch1, branch2;
+	size_t br1, br2;
 
-/**
- * heap_change - find bigger in a heap level
- * @array: array of integers
- * @size_1: max index in binary tree
- * @size_2: size of the array for printing
- * @i: index of head node.
- */
-void heap_change(int *array, size_t size_1, size_t i, size_t size_2)
-{
-	size_t max, left, right;
-
-	max = i;
-	left = 2 * i + 1;
-	right = 2 * i + 2;
-
-	if (left < size_1 && array[left] > array[max])
-		max = left;
-
-	if (right < size_1 && array[right] > array[max])
-		max = right;
-
-	if (max != i)
+	br1 = i * 2 + 1;
+	br2 = br1 + 1;
+	branch1 = array[br1];
+	branch2 = array[br2];
+	if (((br1 < size) && (br2 < size) &&
+		(branch1 >= branch2 && branch1 > array[i]))
+		|| ((br1 == size - 1) && branch1 > array[i]))
 	{
-		swap(array, i, max, size_2);
-
-		heap_change(array, size_1, max, size_2);
+		n = array[i];
+		array[i] = branch1;
+		array[br1] = n;
+		print_array(array, size_init);
 	}
+	else if ((br1 < size) && (br2 < size) &&
+		(branch2 > branch1 && branch2 > array[i]))
+	{
+		n = array[i];
+		array[i] = branch2;
+		array[br2] = n;
+		print_array(array, size_init);
+	}
+	if (br1 < size - 1)
+		check_tree(array, size_init, size, br1);
+	if (br2 < size - 1)
+		check_tree(array, size_init, size, br2);
 }
 /**
- * heap_sort - sorts an array of integers in ascending order using the Heap
- * sort algorithm.
- * @array: array of integers
- * @size: size of array
- */
+ * heap_sort - sorts an array of integers
+ * in ascending order using the Heap
+ * sort algorithm
+ * @array: pointer to array
+ * @size: size of the pointer
+ *
+**/
 void heap_sort(int *array, size_t size)
 {
-	int i;
+	size_t i, size_init = size;
+	int n;
 
-	if (!array || size == 1)
+	if (!array)
 		return;
-	for (i = size / 2 - 1; i >= 0; i--)
-		heap_change(array, size, i, size);
-
-	for (i = size - 1; i > 0; i--)
+	for (i = 0; i < size / 2 ; i++)
 	{
-		swap(array, 0, i, size);
-		heap_change(array, i, 0, size);
+		check_tree(array, size_init, size, size / 2 - 1 - i);
 	}
+	for (i = 0; i < size_init - 1; i++)
+	{
+		n = array[0];
+		array[0] = array[size - 1 - i];
+		array[size - 1 - i] = n;
+		print_array(array, size_init);
+		check_tree(array, size_init, size - i - 1, 0);
+	}
+
 }
